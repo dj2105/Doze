@@ -3,11 +3,12 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "types": ["vite/client"],
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
+      "@/*": ["src/*"],
       "@shared/*": ["../shared/*"]
-    }
+    },
+    "noEmit": true
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src", "../shared/**/*.ts"]
 }
