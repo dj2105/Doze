@@ -1,7 +1,7 @@
 {
   "name": "doze",
   "private": true,
-  "workspaces": ["client", "server", "shared"],
+  "workspaces": ["docs", "server", "shared"],
   "scripts": {
     "build": "npm run build --workspaces",
     "dev:client": "npm --prefix client run dev",
