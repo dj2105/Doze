@@ -17,8 +17,6 @@ const ROUTE_SEGMENTS = new Set([
   'how-to-play'
 ]);
 
-const ensureTrailingSlash = (path: string) => (path.endsWith('/') ? path : `${path}/`);
-
 const resolveBasename = (pathname: string) => {
   const segments = pathname
     .split('/')
@@ -28,7 +26,7 @@ const resolveBasename = (pathname: string) => {
   const baseSegments = knownIndex === -1 ? segments : segments.slice(0, knownIndex);
   const basePath = `/${baseSegments.join('/')}`;
 
-  return basePath === '/' ? basePath : ensureTrailingSlash(basePath);
+  return basePath;
 };
 
 export const router = createBrowserRouter(
