@@ -7,7 +7,7 @@ type PackChoice = 'placeholder' | 'random' | 'specific';
 interface GameContextValue {
   state?: GameState;
   banner?: BannerEvent;
-  createGame: (packType: PackChoice, testing: boolean, specificFile?: string) => Promise<string>;
+  createGame: (packType: PackChoice, testingMode: boolean, specificFile?: string) => Promise<string>;
   joinGame: (gameId: string, player: PlayerId) => Promise<GameState | undefined>;
   sendTopQuestion: (gameId: string, player: PlayerId) => void;
   answerQuestion: (gameId: string, player: PlayerId, questionId: string, answer: string) => void;
@@ -36,8 +36,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     () => ({
       state,
       banner,
-      createGame: async (packType, testing, specificFile) => {
-        const payload = (await gameClient.createGame(packType, testing, specificFile)) as { gameId: string };
+      createGame: async (packType, testingMode, specificFile) => {
+        const payload = (await gameClient.createGame(packType, testingMode, specificFile)) as { gameId: string };
         return payload.gameId;
       },
       joinGame: async (gameId, player) => {

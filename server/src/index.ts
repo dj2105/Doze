@@ -13,10 +13,15 @@ import crypto from 'node:crypto';
 
 const PORT = Number(process.env.PORT ?? 3001);
 
+interface TestingBotState {
+  sendTimeout?: NodeJS.Timeout;
+  answerTimeout?: NodeJS.Timeout;
+}
+
 interface GameRoom {
   state: GameState;
   connections: Partial<Record<PlayerId, WebSocket>>;
-  testingTimer?: NodeJS.Timeout;
+  testingBot?: TestingBotState;
 }
 
 const games = new Map<string, GameRoom>();
@@ -70,7 +75,9 @@ function handleMessage(socket: WebSocket, message: ClientToServerMessage & { pay
 
 function handleCreateGame(
   socket: WebSocket,
-  payload: ClientToServerMessage & { payload: { packType: string; testing: boolean; specificFile?: string; _requestId?: string } }['payload'],
+  payload: ClientToServerMessage & {
+    payload: { packType: string; testingMode: boolean; specificFile?: string; _requestId?: string };
+  }['payload'],
   requestId?: string
 ) {
   const code = generateGameCode();
@@ -101,7 +108,7 @@ function handleCreateGame(
     questionBank,
     rounds,
     activeRound: 1,
-    testingMode: payload.testing
+    testingMode: payload.testingMode
   };
 
   const room: GameRoom = { state, connections: { ONE: socket } };
@@ -109,8 +116,8 @@ function handleCreateGame(
   socketDirectory.set(socket, { gameId: code, player: 'ONE' });
   respond(socket, { type: 'GAME_CREATED', payload: { gameId: code, state } }, requestId);
   broadcastState(room);
-  if (payload.testing) {
-    startTestingTimer(room);
+  if (state.testingMode) {
+    setupTestingMode(room);
   }
 }
 
@@ -140,6 +147,14 @@ function handleSendQuestion(payload: { gameId: string; player: PlayerId }) {
   receiver.incomingQuestionId = item.questionId;
   receiver.awaitingAnswer = true;
   broadcastState(room);
+
+  if (room.state.testingMode) {
+    if (payload.player === 'TWO') {
+      console.log(`Testing mode: TWO sent question ${item.questionId}`);
+    } else if (payload.player === 'ONE' && receiver.id === 'TWO') {
+      scheduleBotAnswer(room, item.questionId);
+    }
+  }
 }
 
 function handleAnswerQuestion(payload: { gameId: string; player: PlayerId; questionId: string; answer: string }) {
@@ -152,8 +167,9 @@ function handleAnswerQuestion(payload: { gameId: string; player: PlayerId; quest
   if (!question) return;
   const round = room.state.rounds.find((entry) => entry.roundNumber === room.state.activeRound);
   const correct = question.correctAnswer === payload.answer;
-  if (correct) {
-    playerState.score += round?.pointsPerCorrect ?? 1;
+  const pointsAwarded = correct ? round?.pointsPerCorrect ?? 1 : 0;
+  if (pointsAwarded) {
+    playerState.score += pointsAwarded;
   }
   playerState.incomingQuestionId = undefined;
   playerState.awaitingAnswer = false;
@@ -170,6 +186,17 @@ function handleAnswerQuestion(payload: { gameId: string; player: PlayerId; quest
   advanceRound(room);
   broadcastState(room);
   broadcast(room, { type: 'BANNER', payload: { banner } });
+
+  if (room.state.testingMode) {
+    if (payload.player === 'TWO') {
+      console.log(
+        `Testing mode: TWO answered ${correct ? 'correctly' : 'incorrectly'} (selected "${payload.answer}")`
+      );
+      const roundNumber = round?.roundNumber ?? room.state.activeRound;
+      console.log(`Testing mode: TWO earned ${pointsAwarded} points in round ${roundNumber}`);
+    }
+    scheduleBotSend(room);
+  }
 }
 
 function handleSync(
@@ -205,38 +232,96 @@ function broadcast(room: GameRoom, message: ServerToClientMessage) {
 function advanceRound(room: GameRoom) {
   const answeredCount = Math.max(room.state.players.ONE.answeredIds.length, room.state.players.TWO.answeredIds.length);
   room.state.activeRound = Math.min(answeredCount + 1, room.state.rounds.length);
-  if (room.state.players.ONE.answeredIds.length >= room.state.rounds.length && room.state.players.TWO.answeredIds.length >= room.state.rounds.length) {
+  if (
+    room.state.players.ONE.answeredIds.length >= room.state.rounds.length &&
+    room.state.players.TWO.answeredIds.length >= room.state.rounds.length
+  ) {
     room.state.phase = 'final';
-    if (room.testingTimer) {
-      clearInterval(room.testingTimer);
-    }
+    clearTestingBot(room);
   }
 }
 
-function startTestingTimer(room: GameRoom) {
-  const loop = () => {
-    if (room.state.phase === 'final') {
-      if (room.testingTimer) {
-        clearInterval(room.testingTimer);
+function setupTestingMode(room: GameRoom) {
+  if (!room.state.testingMode) return;
+  if (!room.testingBot) {
+    room.testingBot = {};
+  }
+  scheduleBotSend(room);
+}
+
+function scheduleBotSend(room: GameRoom) {
+  if (!room.state.testingMode) return;
+  if (!room.testingBot) {
+    room.testingBot = {};
+  }
+  if (room.testingBot.sendTimeout || room.state.phase === 'final') return;
+  const delay = randomBetween(2000, 6000);
+  room.testingBot.sendTimeout = setTimeout(() => {
+    if (!room.testingBot) return;
+    room.testingBot.sendTimeout = undefined;
+    if (room.state.phase === 'final') return;
+    const bot = room.state.players.TWO;
+    const opponent = room.state.players.ONE;
+    if (!bot.stack.length) return;
+    if (opponent.incomingQuestionId) {
+      scheduleBotSend(room);
+      return;
+    }
+    handleSendQuestion({ gameId: room.state.id, player: 'TWO' });
+  }, delay);
+}
+
+function scheduleBotAnswer(room: GameRoom, questionId: string) {
+  if (!room.state.testingMode) return;
+  if (!room.testingBot) {
+    room.testingBot = {};
+  }
+  if (room.testingBot.answerTimeout) {
+    clearTimeout(room.testingBot.answerTimeout);
+  }
+  const delay = randomBetween(3000, 8000);
+  room.testingBot.answerTimeout = setTimeout(() => {
+    if (!room.testingBot) return;
+    room.testingBot.answerTimeout = undefined;
+    if (room.state.phase === 'final') return;
+    const bot = room.state.players.TWO;
+    if (bot.incomingQuestionId !== questionId) {
+      if (bot.incomingQuestionId) {
+        scheduleBotAnswer(room, bot.incomingQuestionId);
       }
       return;
     }
-    const bot = room.state.players.TWO;
-    const incoming = bot.incomingQuestionId;
-    if (incoming) {
-      const question = room.state.questionBank[incoming];
-      if (!question) return;
-      const shouldBeCorrect = Math.random() > 0.4;
-      const options = [question.correctAnswer, ...question.distractors];
-      const answer = shouldBeCorrect ? question.correctAnswer : options[Math.floor(Math.random() * options.length)];
-      handleAnswerQuestion({ gameId: room.state.id, player: 'TWO', questionId: incoming, answer });
-      return;
-    }
-    if (bot.stack.length) {
-      handleSendQuestion({ gameId: room.state.id, player: 'TWO' });
-    }
-  };
-  room.testingTimer = setInterval(loop, 3500);
+    const question = room.state.questionBank[questionId];
+    if (!question) return;
+    const roundNumber = bot.answeredIds.length + 1;
+    const accuracy = getBotAccuracy(roundNumber);
+    const shouldBeCorrect = Math.random() < accuracy;
+    const answer = shouldBeCorrect
+      ? question.correctAnswer
+      : question.distractors[Math.floor(Math.random() * question.distractors.length)];
+    handleAnswerQuestion({ gameId: room.state.id, player: 'TWO', questionId, answer });
+  }, delay);
+}
+
+function getBotAccuracy(roundNumber: number) {
+  if (roundNumber <= 4) return 0.7;
+  if (roundNumber <= 8) return 0.6;
+  return 0.5;
+}
+
+function clearTestingBot(room: GameRoom) {
+  if (!room.testingBot) return;
+  if (room.testingBot.sendTimeout) {
+    clearTimeout(room.testingBot.sendTimeout);
+  }
+  if (room.testingBot.answerTimeout) {
+    clearTimeout(room.testingBot.answerTimeout);
+  }
+  room.testingBot = undefined;
+}
+
+function randomBetween(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function generateGameCode() {

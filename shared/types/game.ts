@@ -58,7 +58,7 @@ export type ClientToServerMessage =
       type: 'CREATE_GAME';
       payload: {
         packType: 'placeholder' | 'random' | 'specific';
-        testing: boolean;
+        testingMode: boolean;
         specificFile?: string;
       };
     }
