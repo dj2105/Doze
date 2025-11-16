@@ -65,7 +65,10 @@ const actions = {
   },
   loadSession: (code) => loadSession(code),
   copyShareLink: () => copyShareLink(),
-  answerQuestion: (playerId, questionId, answer) => answerQuestion(playerId, questionId, answer)
+  answerQuestion: (playerId, questionId, answer) => answerQuestion(playerId, questionId, answer),
+  consumeOpponentResult: () => {
+    state.pendingOpponentResult = null;
+  }
 };
 
 function render() {
@@ -89,6 +92,7 @@ function startGame(mode) {
   state.currentRound = 1;
   state.gameCode = generateGameCode();
   state.pendingQuestionOverlay = null;
+  state.pendingOpponentResult = null;
   state.prefilledCode = state.gameCode;
   state.currentRoom = 'code';
   saveSession();
@@ -164,6 +168,12 @@ function answerQuestion(playerId, questionId, selectedAnswer) {
   }
   if (playerId === 'ONE') {
     state.pendingQuestionOverlay = null;
+  } else {
+    state.pendingOpponentResult = {
+      playerId,
+      answer: selectedAnswer,
+      isCorrect
+    };
   }
   maybeAdvanceRound();
   saveSession();
@@ -181,6 +191,8 @@ function maybeAdvanceRound() {
 
 function finishGame() {
   state.currentRoom = 'final';
+  state.pendingOpponentResult = null;
+  renderQuestionOverlay(null);
   render();
 }
 
@@ -223,6 +235,7 @@ function loadSession(code) {
   state.testingMode = payload.testingMode;
   state.gameCode = code;
   state.pendingQuestionOverlay = null;
+  state.pendingOpponentResult = null;
   state.prefilledCode = code;
   state.currentRoom = 'game';
   render();

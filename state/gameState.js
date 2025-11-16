@@ -9,6 +9,7 @@ export function createGameState() {
     testingMode: false,
     activeQuestions: {},
     pendingQuestionOverlay: null,
+    pendingOpponentResult: null,
     uploadedPacks: [],
     selectedPackId: null,
     gameCode: '',

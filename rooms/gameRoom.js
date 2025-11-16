@@ -24,11 +24,11 @@ export function renderGameRoom(root, state, actions) {
     </div>
     <section class="stack-section">
       <h3>Your question stack</h3>
-      <p class="stack-hint">Drag to reorder. The top tile is sent when you hit send.</p>
-      <ul class="stack-list"></ul>
-      <div class="actions">
+      <div class="stack-controls">
+        <p class="stack-hint">Drag to reorder. The top tile is sent when you hit send.</p>
         <button id="send-question">Send top question</button>
       </div>
+      <ul class="stack-list"></ul>
     </section>
     <section class="incoming">
       <h3>Incoming question</h3>
@@ -85,36 +85,59 @@ export function renderGameRoom(root, state, actions) {
   } else {
     renderQuestionOverlay(null);
   }
+
+  if (state.pendingOpponentResult) {
+    const { answer, isCorrect } = state.pendingOpponentResult;
+    const descriptor = isCorrect ? 'correct' : 'incorrect';
+    showResultMessage(isCorrect ? 'correct' : 'incorrect', `TWO answered ${answer}. This is ${descriptor}.`);
+    actions.consumeOpponentResult();
+  }
 }
 
 function setupDragReorder(list, onReorder) {
+  let draggingTile = null;
+  let activePointerId = null;
+
+  const handlePointerMove = (event) => {
+    if (!draggingTile) return;
+    event.preventDefault();
+    const afterElement = getDragAfterElement(list, event.clientY);
+    if (!afterElement) {
+      list.appendChild(draggingTile);
+    } else {
+      list.insertBefore(draggingTile, afterElement);
+    }
+  };
+
+  const handlePointerUp = () => {
+    if (!draggingTile) return;
+    draggingTile.classList.remove('dragging');
+    if (activePointerId !== null && draggingTile.releasePointerCapture) {
+      draggingTile.releasePointerCapture(activePointerId);
+    }
+    draggingTile = null;
+    activePointerId = null;
+    window.removeEventListener('pointermove', handlePointerMove);
+    window.removeEventListener('pointerup', handlePointerUp);
+    window.removeEventListener('pointercancel', handlePointerUp);
+    const newOrder = Array.from(list.children)
+      .filter((child) => child.dataset.id)
+      .map((child) => child.dataset.id);
+    onReorder(newOrder);
+  };
+
   list.querySelectorAll('.stack-tile').forEach((tile) => {
     tile.addEventListener('pointerdown', (event) => {
-      tile.setPointerCapture(event.pointerId);
+      event.preventDefault();
+      draggingTile = tile;
+      activePointerId = event.pointerId;
+      if (tile.setPointerCapture) {
+        tile.setPointerCapture(event.pointerId);
+      }
       tile.classList.add('dragging');
-      const handleMove = (ev) => {
-        ev.preventDefault();
-        const afterElement = getDragAfterElement(list, ev.clientY);
-        if (!afterElement) {
-          list.appendChild(tile);
-        } else {
-          list.insertBefore(tile, afterElement);
-        }
-      };
-      const handleUp = () => {
-        tile.classList.remove('dragging');
-        tile.releasePointerCapture(event.pointerId);
-        tile.removeEventListener('pointermove', handleMove);
-        tile.removeEventListener('pointerup', handleUp);
-        tile.removeEventListener('pointercancel', handleUp);
-        const newOrder = Array.from(list.children)
-          .filter((child) => child.dataset.id)
-          .map((child) => child.dataset.id);
-        onReorder(newOrder);
-      };
-      tile.addEventListener('pointermove', handleMove);
-      tile.addEventListener('pointerup', handleUp);
-      tile.addEventListener('pointercancel', handleUp);
+      window.addEventListener('pointermove', handlePointerMove);
+      window.addEventListener('pointerup', handlePointerUp);
+      window.addEventListener('pointercancel', handlePointerUp);
     });
   });
 }

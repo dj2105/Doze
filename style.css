@@ -203,6 +203,21 @@ button:hover:not(:disabled) {
 
 .stack-section {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.stack-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.stack-controls button {
+  width: 100%;
+  max-width: 420px;
 }
 
 .stack-list {
@@ -211,6 +226,7 @@ button:hover:not(:disabled) {
   padding: 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.7rem;
 }
 
@@ -218,15 +234,22 @@ button:hover:not(:disabled) {
   background: linear-gradient(135deg, #fff, #f9f9ff);
   border-radius: 18px;
   border: 2px solid transparent;
-  padding: 1rem;
-  min-height: 70px;
+  padding: 1.2rem 1.4rem;
+  min-height: 90px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 0.8rem;
   font-weight: 600;
   cursor: grab;
   box-shadow: 0 15px 25px rgba(15, 23, 42, 0.07);
   transition: transform 0.2s ease, border-color 0.2s ease;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+  user-select: none;
+  touch-action: none;
 }
 
 .stack-tile.dragging {
@@ -247,11 +270,19 @@ button:hover:not(:disabled) {
   justify-content: center;
   color: var(--accent-dark);
   font-weight: 700;
+  align-self: center;
+  margin-bottom: 0.35rem;
+}
+
+.stack-tile .text {
+  font-size: 1.1rem;
+  line-height: 1.4;
 }
 
 .stack-hint {
   font-size: 0.85rem;
   color: #7b879e;
+  text-align: center;
 }
 
 .game-room .actions {
