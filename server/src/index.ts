@@ -1,4 +1,4 @@
-import { WebSocketServer, WebSocket } from 'ws';
+import { WebSocketServer, WebSocket, RawData } from 'ws';
 import { drawQuestions } from '@shared/data/questions';
 import type {
   BannerEvent,
@@ -27,12 +27,23 @@ interface GameRoom {
 const games = new Map<string, GameRoom>();
 const socketDirectory = new Map<WebSocket, { gameId: string; player: PlayerId }>();
 
+type WithRequestId<T extends ClientToServerMessage> = T extends { payload: infer P }
+  ? T & { payload: P & { _requestId?: string } }
+  : T;
+
+type ClientMessage = WithRequestId<ClientToServerMessage>;
+type CreateGamePayload = Extract<ClientMessage, { type: 'CREATE_GAME' }>['payload'];
+type JoinGamePayload = Extract<ClientMessage, { type: 'JOIN_GAME' }>['payload'];
+type SendQuestionPayload = Extract<ClientMessage, { type: 'SEND_QUESTION' }>['payload'];
+type AnswerQuestionPayload = Extract<ClientMessage, { type: 'ANSWER_QUESTION' }>['payload'];
+type SyncPayload = Extract<ClientMessage, { type: 'SYNC_REQUEST' }>['payload'];
+
 const wss = new WebSocketServer({ port: PORT });
 
-wss.on('connection', (socket) => {
-  socket.on('message', (raw) => {
+wss.on('connection', (socket: WebSocket) => {
+  socket.on('message', (raw: RawData) => {
     try {
-      const message = JSON.parse(raw.toString()) as ClientToServerMessage & { payload?: { _requestId?: string } };
+      const message = JSON.parse(raw.toString()) as ClientMessage;
       handleMessage(socket, message);
     } catch (error) {
       console.error('Invalid payload', error);
@@ -52,8 +63,8 @@ wss.on('connection', (socket) => {
   });
 });
 
-function handleMessage(socket: WebSocket, message: ClientToServerMessage & { payload?: { _requestId?: string } }) {
-  const requestId = message.payload?._requestId;
+function handleMessage(socket: WebSocket, message: ClientMessage) {
+  const requestId = message.payload._requestId;
   switch (message.type) {
     case 'CREATE_GAME':
       handleCreateGame(socket, message.payload, requestId);
@@ -73,13 +84,7 @@ function handleMessage(socket: WebSocket, message: ClientToServerMessage & { pay
   }
 }
 
-function handleCreateGame(
-  socket: WebSocket,
-  payload: ClientToServerMessage & {
-    payload: { packType: string; testingMode: boolean; specificFile?: string; _requestId?: string };
-  }['payload'],
-  requestId?: string
-) {
+function handleCreateGame(socket: WebSocket, payload: CreateGamePayload, requestId?: string) {
   const code = generateGameCode();
   const questions = drawQuestions();
   const questionBank = Object.fromEntries(questions.map((question) => [question.id, question]));
@@ -121,11 +126,7 @@ function handleCreateGame(
   }
 }
 
-function handleJoinGame(
-  socket: WebSocket,
-  payload: ClientToServerMessage & { payload: { gameId: string; player: PlayerId; _requestId?: string } }['payload'],
-  requestId?: string
-) {
+function handleJoinGame(socket: WebSocket, payload: JoinGamePayload, requestId?: string) {
   const room = games.get(payload.gameId);
   if (!room) {
     respond(socket, { type: 'ERROR', payload: { message: 'Game not found' } }, requestId);
@@ -137,7 +138,7 @@ function handleJoinGame(
   broadcastState(room);
 }
 
-function handleSendQuestion(payload: { gameId: string; player: PlayerId }) {
+function handleSendQuestion(payload: SendQuestionPayload) {
   const room = games.get(payload.gameId);
   if (!room) return;
   const sender = room.state.players[payload.player];
@@ -157,7 +158,7 @@ function handleSendQuestion(payload: { gameId: string; player: PlayerId }) {
   }
 }
 
-function handleAnswerQuestion(payload: { gameId: string; player: PlayerId; questionId: string; answer: string }) {
+function handleAnswerQuestion(payload: AnswerQuestionPayload) {
   const room = games.get(payload.gameId);
   if (!room) return;
   const playerState = room.state.players[payload.player];
@@ -199,11 +200,7 @@ function handleAnswerQuestion(payload: { gameId: string; player: PlayerId; quest
   }
 }
 
-function handleSync(
-  socket: WebSocket,
-  payload: ClientToServerMessage & { payload: { gameId: string; player: PlayerId; _requestId?: string } }['payload'],
-  requestId?: string
-) {
+function handleSync(socket: WebSocket, payload: SyncPayload, requestId?: string) {
   const room = games.get(payload.gameId);
   if (!room) {
     respond(socket, { type: 'ERROR', payload: { message: 'Game not found' } }, requestId);
