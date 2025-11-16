@@ -1,0 +1,7 @@
+node_modules/
+docs/node_modules/
+dist/
+docs/dist/
+**/*.tsbuildinfo
+npm-debug.log*
+.DS_Store
