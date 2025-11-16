@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doze Trivia Duel</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Doze Trivia Duel</h1>
+  </header>
+  <main id="app">
+    <section data-room="lobby" class="room">
+      <h2>Lobby</h2>
+      <label class="field">
+        <span>Enter game code</span>
+        <input type="text" id="lobby-code" placeholder="##-##-##" />
+      </label>
+      <button id="lobby-go">Go</button>
+      <div class="room-links">
+        <button data-nav="keyroom">Keyroom</button>
+        <button data-nav="rejoin">Rejoin</button>
+        <button data-nav="how">How to play</button>
+      </div>
+    </section>
+
+    <section data-room="keyroom" class="room hidden">
+      <div class="room-header">
+        <h2>Keyroom</h2>
+        <button data-nav="lobby" class="link">Back</button>
+      </div>
+      <p>Create a new match and configure the question pack.</p>
+      <div class="selector">
+        <label for="pack-mode">Question pack</label>
+        <select id="pack-mode">
+          <option value="placeholder">Placeholder</option>
+          <option value="random">Random upload</option>
+          <option value="specific">Specific upload</option>
+        </select>
+      </div>
+      <div class="uploads">
+        <label for="pack-upload" class="upload-box">
+          <span>Upload packs (.json or .txt)</span>
+          <input type="file" id="pack-upload" accept=".json,.txt" multiple />
+        </label>
+        <ul id="pack-list"></ul>
+      </div>
+      <label class="testing">
+        <input type="checkbox" id="testing-toggle" />
+        Testing mode (simulate Player TWO)
+      </label>
+      <button id="start-game">Start game</button>
+    </section>
+
+    <section data-room="code" class="room hidden">
+      <div class="room-header">
+        <h2>Your game code</h2>
+        <button data-nav="lobby" class="link">Back to lobby</button>
+      </div>
+      <div class="code-display">
+        <p id="game-code">-- -- --</p>
+        <button id="copy-code">Copy link</button>
+      </div>
+      <p class="info-text">Share this code with your opponent to play on another device. (Local simulation only.)</p>
+      <button data-nav="game" class="primary">Enter game room</button>
+    </section>
+
+    <section data-room="game" class="room hidden">
+      <div class="room-header">
+        <h2>Game room</h2>
+        <button data-nav="lobby" class="link">Exit</button>
+      </div>
+      <div class="scoreboard">
+        <div>
+          <strong>ONE</strong>
+          <span id="score-one">0</span>
+        </div>
+        <div>
+          <strong>TWO</strong>
+          <span id="score-two">0</span>
+        </div>
+        <div class="round">
+          <strong>Round</strong>
+          <span id="round-display">1 / 12</span>
+        </div>
+      </div>
+      <div id="score-floater"></div>
+      <div id="banner" class="banner hidden"></div>
+      <section class="stack-section">
+        <h3>Your question stack</h3>
+        <p class="hint">Drag to reorder, top card will be sent.</p>
+        <ul id="question-stack" class="stack-list"></ul>
+        <button id="send-question" class="primary">Send top question</button>
+      </section>
+      <section class="incoming">
+        <h3>Incoming question</h3>
+        <div id="incoming-question" class="incoming-box empty">
+          <p>Waiting for your opponent...</p>
+        </div>
+      </section>
+    </section>
+
+    <section data-room="final" class="room hidden">
+      <h2>Final Scores</h2>
+      <p>ONE: <span id="final-one">0</span></p>
+      <p>TWO: <span id="final-two">0</span></p>
+      <p id="final-result"></p>
+      <button data-nav="lobby">Return to lobby</button>
+    </section>
+
+    <section data-room="how" class="room hidden">
+      <div class="room-header">
+        <h2>How to play</h2>
+        <button data-nav="lobby" class="link">Back</button>
+      </div>
+      <article class="how">
+        <p>Arrange your stack of 12 trivia questions. Send the top question to your opponent. Answer their chosen question before they answer yours! Scoring increases as the rounds progress.</p>
+        <ul>
+          <li>Drag a question tile to reorder your stack.</li>
+          <li>Press <strong>Send</strong> to deliver the top question.</li>
+          <li>Answer the incoming question by tapping one of the options.</li>
+          <li>Rounds 1-4: 1 point, rounds 5-8: 2 points, rounds 9-12: 3 points.</li>
+          <li>Testing mode simulates Player TWO so you can play solo.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section data-room="rejoin" class="room hidden">
+      <div class="room-header">
+        <h2>Rejoin</h2>
+        <button data-nav="lobby" class="link">Back</button>
+      </div>
+      <label class="field">
+        <span>Enter code</span>
+        <input type="text" id="rejoin-code" placeholder="##-##-##" />
+      </label>
+      <button id="rejoin-go">Resume</button>
+      <p class="info-text">Rejoin reloads the last saved state for that code on this device.</p>
+    </section>
+  </main>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
