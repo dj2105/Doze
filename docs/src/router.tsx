@@ -17,7 +17,12 @@ const ROUTE_SEGMENTS = new Set([
   'how-to-play'
 ]);
 
-const ensureTrailingSlash = (path: string) => (path.endsWith('/') ? path : `${path}/`);
+const normalizeBasename = (value: string) => {
+  if (!value || value === '/' || value === './') {
+    return '';
+  }
+  return value.endsWith('/') ? value.slice(0, -1) : value;
+};
 
 const resolveBasename = (pathname: string) => {
   const segments = pathname
@@ -28,8 +33,13 @@ const resolveBasename = (pathname: string) => {
   const baseSegments = knownIndex === -1 ? segments : segments.slice(0, knownIndex);
   const basePath = `/${baseSegments.join('/')}`;
 
-  return basePath === '/' ? basePath : ensureTrailingSlash(basePath);
+  return normalizeBasename(basePath);
 };
+
+const BASENAME =
+  typeof window !== 'undefined'
+    ? resolveBasename(window.location.pathname)
+    : normalizeBasename(import.meta.env.BASE_URL);
 
 export const router = createBrowserRouter(
   [
@@ -41,5 +51,5 @@ export const router = createBrowserRouter(
     { path: '/rejoin', element: <RejoinRoom /> },
     { path: '/how-to-play', element: <HowToPlay /> }
   ],
-  { basename: resolveBasename(window.location.pathname) }
+  { basename: BASENAME }
 );
