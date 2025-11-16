@@ -44,10 +44,10 @@ export class GameClient {
     };
   }
 
-  createGame(packType: 'placeholder' | 'random' | 'specific', testing: boolean, specificFile?: string) {
+  createGame(packType: 'placeholder' | 'random' | 'specific', testingMode: boolean, specificFile?: string) {
     return this.sendWithAck({
       type: 'CREATE_GAME',
-      payload: { packType, testing, specificFile }
+      payload: { packType, testingMode, specificFile }
     });
   }
 
