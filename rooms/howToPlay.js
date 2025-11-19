@@ -6,10 +6,11 @@ export function renderHowToPlay(root, state, actions) {
       <h2>How to play</h2>
       <button class="link" data-nav="lobby">Back</button>
     </div>
-    <p>Q&M is a fast paced duel. Each of you builds a stack of questions and fires them off while answering the incoming ones.</p>
+    <p>Q&M is a fast paced duel. Drag colorful tiles from your grid into the send box while answering the incoming questions at the top.</p>
     <ul class="how-list">
-      <li>Drag the tiles to reorder your question stack. The top card is sent when you press <strong>Send</strong>.</li>
-      <li>Incoming questions appear as an overlay. Tap an option to answer.</li>
+      <li>Each round uses a 3×4 grid of questions. Drag any unused tile into the “DRAG QUESTIONS HERE TO SEND” box to fire it at your opponent.</li>
+      <li>Sent tiles stay in the grid but fade to show they have already been used.</li>
+      <li>Incoming questions appear in the black-bordered box with 2–4 multiple-choice answers depending on the round.</li>
       <li>Rounds 1–4: 1 point, 5–8: 2 points, 9–12: 3 points. Incorrect answers are worth 0.</li>
       <li>Enable testing mode in the keyroom to simulate Player TWO with a 65% accurate bot.</li>
       <li>Complete 12 rounds to reveal the winner.</li>

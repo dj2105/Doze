@@ -2,14 +2,17 @@ export function createGameState() {
   return {
     currentRoom: 'lobby',
     players: {
-      ONE: { score: 0, questionOrder: [], answered: [] },
-      TWO: { score: 0, questionOrder: [], answered: [] }
+      ONE: { score: 0, questionOrder: [], answered: [], sentQuestions: [] },
+      TWO: { score: 0, questionOrder: [], answered: [], sentQuestions: [] }
     },
     currentRound: 1,
     testingMode: false,
     activeQuestions: {},
     pendingQuestionOverlay: null,
     pendingOpponentResult: null,
+    questionColors: {},
+    activeSendBoxQuestionId: null,
+    sendBoxAnswer: null,
     uploadedPacks: [],
     selectedPackId: null,
     gameCode: '',
@@ -21,8 +24,8 @@ export function createGameState() {
 
 export function clonePlayers(questionIds) {
   return {
-    ONE: { score: 0, questionOrder: shuffle(questionIds), answered: [] },
-    TWO: { score: 0, questionOrder: shuffle(questionIds), answered: [] }
+    ONE: { score: 0, questionOrder: shuffle(questionIds), answered: [], sentQuestions: [] },
+    TWO: { score: 0, questionOrder: shuffle(questionIds), answered: [], sentQuestions: [] }
   };
 }
 
@@ -95,6 +98,16 @@ export function generateGameCode() {
 
 export function randomDelay() {
   return 500 + Math.random() * 1500;
+}
+
+export function buildQuestionPalette(count) {
+  const palette = [];
+  const slice = 360 / count;
+  for (let i = 0; i < count; i++) {
+    const hue = (i * slice + Math.random() * slice) % 360;
+    palette.push(`hsl(${hue.toFixed(0)}, 70%, 90%)`);
+  }
+  return shuffle(palette);
 }
 
 export const placeholderQuestions = [
