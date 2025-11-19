@@ -9,7 +9,8 @@ import {
   buildOptions,
   generateGameCode,
   shuffle,
-  randomDelay
+  randomDelay,
+  buildQuestionPalette
 } from './state/gameState.js';
 import { renderLobby } from './rooms/lobby.js';
 import { renderKeyRoom } from './rooms/keyRoom.js';
@@ -55,8 +56,8 @@ const actions = {
     state.testingMode = value;
     render();
   },
-  sendQuestion: () => {
-    sendQuestion('ONE');
+  sendQuestion: (questionId) => {
+    sendQuestion('ONE', questionId);
   },
   reorderQuestions: (order) => {
     state.players.ONE.questionOrder = order;
@@ -89,10 +90,13 @@ function startGame(mode) {
   });
   const baseIds = chosen.map((q) => q.id);
   state.players = clonePlayers(baseIds);
+  state.questionColors = assignColors(baseIds);
   state.currentRound = 1;
   state.gameCode = generateGameCode();
   state.pendingQuestionOverlay = null;
   state.pendingOpponentResult = null;
+  state.activeSendBoxQuestionId = null;
+  state.sendBoxAnswer = null;
   state.prefilledCode = state.gameCode;
   state.currentRoom = 'code';
   saveSession();
@@ -128,12 +132,17 @@ async function handleUploads(files) {
   render();
 }
 
-function sendQuestion(playerId) {
+function sendQuestion(playerId, questionId) {
   const player = state.players[playerId];
-  if (!player.questionOrder.length) return;
-  const questionId = player.questionOrder.shift();
+  const chosenId = getNextAvailableQuestion(player, questionId);
   const opponentId = playerId === 'ONE' ? 'TWO' : 'ONE';
-  receiveQuestion(opponentId, questionId);
+  if (!chosenId || player.sentQuestions.includes(chosenId)) return;
+  if (playerId === 'ONE') {
+    state.activeSendBoxQuestionId = chosenId;
+    state.sendBoxAnswer = null;
+  }
+  player.sentQuestions.push(chosenId);
+  receiveQuestion(opponentId, chosenId);
   saveSession();
   render();
   if (playerId === 'ONE' && state.testingMode) {
@@ -171,9 +180,17 @@ function answerQuestion(playerId, questionId, selectedAnswer) {
   } else {
     state.pendingOpponentResult = {
       playerId,
+      questionId,
       answer: selectedAnswer,
       isCorrect
     };
+    state.sendBoxAnswer = { questionId, answer: selectedAnswer, isCorrect };
+    setTimeout(() => {
+      state.activeSendBoxQuestionId = null;
+      state.sendBoxAnswer = null;
+      saveSession();
+      render();
+    }, 5000);
   }
   maybeAdvanceRound();
   saveSession();
@@ -197,9 +214,9 @@ function finishGame() {
 }
 
 function botSendQuestionIfNeeded() {
-  const questionId = state.players.TWO.questionOrder[0];
+  const questionId = getNextAvailableQuestion(state.players.TWO);
   if (!questionId) return;
-  sendQuestion('TWO');
+  sendQuestion('TWO', questionId);
 }
 
 function botAnswerQuestion(questionId, question) {
@@ -216,7 +233,10 @@ function saveSession() {
     players: state.players,
     currentRound: state.currentRound,
     activeQuestions: state.activeQuestions,
-    testingMode: state.testingMode
+    testingMode: state.testingMode,
+    questionColors: state.questionColors,
+    activeSendBoxQuestionId: state.activeSendBoxQuestionId,
+    sendBoxAnswer: state.sendBoxAnswer
   };
   localStorage.setItem(`doze-session-${state.gameCode}`, JSON.stringify(payload));
 }
@@ -233,6 +253,12 @@ function loadSession(code) {
   state.currentRound = payload.currentRound;
   state.activeQuestions = payload.activeQuestions;
   state.testingMode = payload.testingMode;
+  state.questionColors = payload.questionColors || {};
+  state.activeSendBoxQuestionId = payload.activeSendBoxQuestionId || null;
+  state.sendBoxAnswer = payload.sendBoxAnswer || null;
+  if (!Object.keys(state.questionColors).length && state.players.ONE.questionOrder?.length) {
+    state.questionColors = assignColors(state.players.ONE.questionOrder);
+  }
   state.gameCode = code;
   state.pendingQuestionOverlay = null;
   state.pendingOpponentResult = null;
@@ -261,6 +287,22 @@ function initFromUrl() {
     return true;
   }
   return false;
+}
+
+function getNextAvailableQuestion(player, chosenId) {
+  if (chosenId && !player.sentQuestions.includes(chosenId)) {
+    return chosenId;
+  }
+  return player.questionOrder.find((id) => !player.sentQuestions.includes(id)) || null;
+}
+
+function assignColors(questionIds) {
+  const palette = buildQuestionPalette(questionIds.length || 12);
+  const map = {};
+  questionIds.forEach((id, idx) => {
+    map[id] = palette[idx % palette.length];
+  });
+  return map;
 }
 
 if (!initFromUrl()) {
