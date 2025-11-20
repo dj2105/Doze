@@ -1,4 +1,4 @@
-import { renderQuestionOverlay, showResultMessage } from '../ui/components.js';
+import { renderQuestionOverlay } from '../ui/components.js';
 
 export function renderGameRoom(root, state, actions) {
   renderQuestionOverlay(null);
@@ -48,11 +48,6 @@ export function renderGameRoom(root, state, actions) {
   renderQuestionGrid(section, state, actions);
 
   if (state.pendingOpponentResult) {
-    const { answer, isCorrect, questionId } = state.pendingOpponentResult;
-    const descriptor = isCorrect ? 'correct' : 'incorrect';
-    const questionText = state.activeQuestions[questionId]?.text;
-    const suffix = questionText ? ` to "${questionText}"` : '';
-    showResultMessage(isCorrect ? 'correct' : 'incorrect', `TWO answered ${answer}${suffix}. This is ${descriptor}.`);
     actions.consumeOpponentResult();
   }
 }
@@ -60,13 +55,26 @@ export function renderGameRoom(root, state, actions) {
 function renderIncomingCard(section, state, actions) {
   const card = section.querySelector('#incoming-card');
   card.innerHTML = '';
-  card.classList.remove('filled');
+  card.className = 'incoming-card';
 
   const overlayData = state.pendingQuestionOverlay;
+  if (!overlayData && state.incomingResult) {
+    const result = state.incomingResult;
+    card.classList.add('result', result.isCorrect ? 'result-correct' : 'result-incorrect');
+    const status = document.createElement('p');
+    status.className = 'incoming-result-text';
+    status.textContent = result.isCorrect ? `CORRECT +${result.points}` : 'INCORRECT';
+    const next = document.createElement('p');
+    next.className = 'incoming-next-text';
+    next.textContent = 'WAITING FOR NEXT QUESTION';
+    card.append(status, next);
+    return;
+  }
+
   if (!overlayData) {
     const waiting = document.createElement('p');
     waiting.className = 'incoming-waiting';
-    waiting.textContent = 'Waiting for your opponent to send you a question…';
+    waiting.textContent = 'WAITING FOR NEXT QUESTION';
     card.appendChild(waiting);
     return;
   }
@@ -86,9 +94,6 @@ function renderIncomingCard(section, state, actions) {
     btn.addEventListener('click', () => {
       options.querySelectorAll('button').forEach((b) => (b.disabled = true));
       const result = actions.answerQuestion('ONE', overlayData.id, option);
-      if (result) {
-        showResultMessage(result.isCorrect ? 'correct' : 'incorrect', result.message);
-      }
     });
     options.appendChild(btn);
   });
