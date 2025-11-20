@@ -10,6 +10,7 @@ export function createGameState() {
     activeQuestions: {},
     pendingQuestionOverlay: null,
     pendingOpponentResult: null,
+    incomingResult: null,
     questionColors: {},
     activeSendBoxQuestionId: null,
     sendBoxAnswer: null,

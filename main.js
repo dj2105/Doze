@@ -23,6 +23,7 @@ import { renderQuestionOverlay } from './ui/components.js';
 
 const app = document.getElementById('app');
 const state = createGameState();
+let incomingResultTimer = null;
 
 const rooms = {
   lobby: renderLobby,
@@ -88,6 +89,7 @@ function startGame(mode) {
   chosen.forEach((question) => {
     state.activeQuestions[question.id] = question;
   });
+  clearIncomingResultTimer();
   const baseIds = chosen.map((q) => q.id);
   state.players = clonePlayers(baseIds);
   state.questionColors = assignColors(baseIds);
@@ -95,6 +97,7 @@ function startGame(mode) {
   state.gameCode = generateGameCode();
   state.pendingQuestionOverlay = null;
   state.pendingOpponentResult = null;
+  state.incomingResult = null;
   state.activeSendBoxQuestionId = null;
   state.sendBoxAnswer = null;
   state.prefilledCode = state.gameCode;
@@ -158,6 +161,8 @@ function receiveQuestion(playerId, questionId) {
     return;
   }
   if (playerId === 'ONE') {
+    state.incomingResult = null;
+    clearIncomingResultTimer();
     const distractorCount = getDistractorCountForRound(state.currentRound);
     const options = buildOptions(question, distractorCount);
     state.pendingQuestionOverlay = { id: question.id, text: question.text, options };
@@ -177,6 +182,13 @@ function answerQuestion(playerId, questionId, selectedAnswer) {
   }
   if (playerId === 'ONE') {
     state.pendingQuestionOverlay = null;
+    state.incomingResult = { questionId, isCorrect, points };
+    clearIncomingResultTimer();
+    incomingResultTimer = setTimeout(() => {
+      state.incomingResult = null;
+      saveSession();
+      render();
+    }, 2000);
   } else {
     state.pendingOpponentResult = {
       playerId,
@@ -207,6 +219,7 @@ function maybeAdvanceRound() {
 }
 
 function finishGame() {
+  clearIncomingResultTimer();
   state.currentRoom = 'final';
   state.pendingOpponentResult = null;
   renderQuestionOverlay(null);
@@ -236,7 +249,8 @@ function saveSession() {
     testingMode: state.testingMode,
     questionColors: state.questionColors,
     activeSendBoxQuestionId: state.activeSendBoxQuestionId,
-    sendBoxAnswer: state.sendBoxAnswer
+    sendBoxAnswer: state.sendBoxAnswer,
+    incomingResult: state.incomingResult
   };
   localStorage.setItem(`doze-session-${state.gameCode}`, JSON.stringify(payload));
 }
@@ -249,6 +263,7 @@ function loadSession(code) {
     return;
   }
   const payload = JSON.parse(stored);
+  clearIncomingResultTimer();
   state.players = payload.players;
   state.currentRound = payload.currentRound;
   state.activeQuestions = payload.activeQuestions;
@@ -256,6 +271,7 @@ function loadSession(code) {
   state.questionColors = payload.questionColors || {};
   state.activeSendBoxQuestionId = payload.activeSendBoxQuestionId || null;
   state.sendBoxAnswer = payload.sendBoxAnswer || null;
+  state.incomingResult = payload.incomingResult || null;
   if (!Object.keys(state.questionColors).length && state.players.ONE.questionOrder?.length) {
     state.questionColors = assignColors(state.players.ONE.questionOrder);
   }
@@ -307,4 +323,11 @@ function assignColors(questionIds) {
 
 if (!initFromUrl()) {
   render();
+}
+
+function clearIncomingResultTimer() {
+  if (incomingResultTimer) {
+    clearTimeout(incomingResultTimer);
+    incomingResultTimer = null;
+  }
 }

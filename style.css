@@ -239,6 +239,34 @@ button:hover:not(:disabled) {
   justify-content: flex-start;
 }
 
+.incoming-card.result {
+  justify-content: center;
+}
+
+.incoming-card.result-correct {
+  background: #e8f7ef;
+  border-color: #166534;
+}
+
+.incoming-card.result-incorrect {
+  background: #fef2f2;
+  border-color: #b91c1c;
+}
+
+.incoming-result-text {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin: 0;
+  text-transform: uppercase;
+  color: #0f172a;
+}
+
+.incoming-next-text {
+  margin: 0;
+  font-weight: 600;
+  color: #1f2937;
+}
+
 .incoming-waiting {
   margin: 0;
   color: #6b7280;
@@ -335,13 +363,6 @@ button:hover:not(:disabled) {
 .question-card.used {
   opacity: 0.45;
   cursor: not-allowed;
-}
-
-.question-card.used::after {
-  content: 'Sent';
-  margin-left: 0.35rem;
-  font-size: 0.9rem;
-  color: #374151;
 }
 
 .stack-section {
