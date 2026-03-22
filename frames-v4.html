@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dossier Frame Prototype V4</title>
+    <meta name="description" content="Four-frame dossier prototype with timeline fully contained within the header width." />
+    <link rel="stylesheet" href="frames-v4.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="title-bar">
+        <div class="title-bar__main">
+          <div>
+            <p class="eyebrow">Formal Grievance Dossier</p>
+            <h1>Systemic Failures &amp; Duty of Care</h1>
+          </div>
+          <button id="timelineToggle" class="timeline-toggle" type="button" aria-expanded="false" aria-controls="timelinePanel">Show timeline</button>
+        </div>
+        <section id="timelinePanel" class="timeline-panel" hidden>
+          <div class="timeline-viewport">
+            <div class="timeline-scroll" tabindex="0" aria-label="Horizontal timeline scroll area">
+              <div class="timeline-canvas">
+                <div id="timelineMonths" class="timeline-months"></div>
+                <div id="timelineTrack" class="timeline-track"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </header>
+
+      <main class="workspace">
+        <aside class="rail" aria-label="Main report contents">
+          <div class="rail__header">
+            <div>
+              <p class="eyebrow">Menu frame</p>
+              <h2>Main report</h2>
+            </div>
+          </div>
+          <div class="rail__body">
+            <ul id="reportTree" class="menu-tree"></ul>
+          </div>
+        </aside>
+
+        <section class="content-frame" aria-label="Main report content">
+          <div id="mainFrameHeader" class="content-frame__header"></div>
+          <div id="mainFrameBody" class="content-frame__body"></div>
+        </section>
+
+        <section class="content-frame" aria-label="Appendix content">
+          <div id="appendixFrameHeader" class="content-frame__header"></div>
+          <div id="appendixFrameBody" class="content-frame__body"></div>
+        </section>
+
+        <aside class="rail rail--appendix" aria-label="Appendix contents">
+          <div class="rail__header">
+            <div>
+              <p class="eyebrow">Menu frame</p>
+              <h2>Appendix</h2>
+            </div>
+          </div>
+          <div class="rail__body">
+            <ul id="appendixTree" class="menu-tree"></ul>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script src="frames-v4.js" defer></script>
+  </body>
+</html>
