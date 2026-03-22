@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Formal Grievance Dossier · Web Framework</title>
+    <meta
+      name="description"
+      content="Minimal evidential web structure for the Formal Grievance Dossier, including phase framing, evidence map, and timeline scaffolding."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+
+    <header class="site-header">
+      <div class="site-header__inner page-shell">
+        <p class="eyebrow">Formal Grievance Dossier</p>
+        <h1>Systemic Failures &amp; Duty of Care</h1>
+        <p class="lede">
+          A minimal web framework for presenting the dossier in an accessible,
+          evidentially linked form. This version establishes the information architecture,
+          phase framing, evidence navigation, and timeline data model.
+        </p>
+        <div class="meta-grid" aria-label="Document metadata">
+          <div><span>Submitted by</span><strong>Daniel Mark Jackson</strong></div>
+          <div><span>Organisation</span><strong>Infosys BPM (BT / EE Account)</strong></div>
+          <div><span>Document status</span><strong>Draft submission</strong></div>
+          <div><span>Site mode</span><strong>Framework prototype</strong></div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="section-nav page-shell" aria-label="Primary">
+      <a href="#overview">Overview</a>
+      <a href="#phases">Phases</a>
+      <a href="#report">Report structure</a>
+      <a href="#evidence">Evidence map</a>
+      <a href="#timeline">Timeline scaffold</a>
+    </nav>
+
+    <main id="main" class="page-shell stack-xl">
+      <section id="overview" class="panel panel--hero">
+        <div>
+          <p class="eyebrow">Purpose</p>
+          <h2>Designed for investigation, not decoration</h2>
+          <p>
+            The final site should preserve the dossier’s chronology, cross-reference every
+            narrative claim to evidence, and make the cumulative progression across the
+            three phases easy to inspect on screen.
+          </p>
+        </div>
+        <ul class="bullet-grid" aria-label="Core objectives">
+          <li>Chronological honesty</li>
+          <li>Evidence-first navigation</li>
+          <li>Accessible reading order</li>
+          <li>Clear separation of report and appendix material</li>
+        </ul>
+      </section>
+
+      <section id="phases" class="stack-l">
+        <div class="section-heading">
+          <p class="eyebrow">Phase framing</p>
+          <h2>Three connected phases</h2>
+        </div>
+        <div id="phaseCards" class="phase-grid" aria-live="polite"></div>
+      </section>
+
+      <section id="report" class="stack-l">
+        <div class="section-heading">
+          <p class="eyebrow">Report structure</p>
+          <h2>Section architecture carried over from the dossier</h2>
+        </div>
+        <div class="report-grid">
+          <article class="report-card">
+            <h3>0. Introduction</h3>
+            <p>Purpose, scope, organisation, core themes, statement of intent, and master timeline.</p>
+          </article>
+          <article class="report-card">
+            <h3>1. MS Teams Evidence</h3>
+            <p>Operational case studies, timeline entries T-01 to T-29, and linked screenshots.</p>
+          </article>
+          <article class="report-card">
+            <h3>2. Systemic &amp; Cultural Evidence</h3>
+            <p>Policy contradiction, process constraint, hostility indicators, and operational context.</p>
+          </article>
+          <article class="report-card">
+            <h3>3. Complaints Training Session</h3>
+            <p>Training content, rapid-closure concerns, ADR/deadlock analysis, and operational impact.</p>
+          </article>
+          <article class="report-card">
+            <h3>4. Interim Arrangements</h3>
+            <p>Availability problems, weekend escalation, pay threats, and unsafe interim structure.</p>
+          </article>
+          <article class="report-card">
+            <h3>5. Grievance Handling</h3>
+            <p>HR/ER contact, acknowledgement gaps, silence periods, and escalation to senior management.</p>
+          </article>
+          <article class="report-card">
+            <h3>6. Conclusions &amp; Outcomes</h3>
+            <p>Cumulative impact, organisational failure analysis, and remedies sought.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="evidence" class="stack-l">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence map</p>
+          <h2>Reference families prepared for direct linking</h2>
+        </div>
+        <div class="evidence-grid">
+          <article class="evidence-card">
+            <h3>T</h3>
+            <p>Teams screenshots and operational case evidence.</p>
+            <a href="#timeline">Linked from timeline entries</a>
+          </article>
+          <article class="evidence-card">
+            <h3>GH</h3>
+            <p>Grievance-handling emails and response-gap material.</p>
+            <a href="#timeline">Used across phases 1–3</a>
+          </article>
+          <article class="evidence-card">
+            <h3>SC</h3>
+            <p>Systemic and cultural corroboration material.</p>
+            <a href="#report">Supports section 2 analysis</a>
+          </article>
+          <article class="evidence-card">
+            <h3>CT / AT / CE</h3>
+            <p>Supporting Teams history and customer email exhibits.</p>
+            <a href="#report">Reserved for case-level drill-down</a>
+          </article>
+        </div>
+      </section>
+
+      <section id="timeline" class="stack-l">
+        <div class="section-heading">
+          <p class="eyebrow">Timeline scaffold</p>
+          <h2>Horizontal phase timeline placeholder</h2>
+          <p>
+            This framework already carries the top-level timeline entries from <em>Phases.pdf</em>.
+            The final implementation can replace placeholder evidence URLs with deep links to
+            exhibit pages, images, transcripts, or filtered appendix views.
+          </p>
+        </div>
+
+        <div class="timeline-controls" role="group" aria-label="Timeline controls">
+          <button class="toggle-button is-active" type="button" data-filter="all">All entries</button>
+          <button class="toggle-button" type="button" data-filter="operational">Operational</button>
+          <button class="toggle-button" type="button" data-filter="grievance">Grievance / HR</button>
+          <button class="toggle-button" type="button" data-filter="impact">Impact / status</button>
+        </div>
+
+        <div class="timeline-shell" aria-label="Timeline entries">
+          <div id="timelineTrack" class="timeline-track"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer page-shell">
+      <p>
+        Prototype notes: static HTML, CSS, and JavaScript only; suitable as a lightweight
+        starting point for GitHub Pages or later migration into a component-based front end.
+      </p>
+    </footer>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
