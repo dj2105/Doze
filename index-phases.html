@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Formal Grievance Dossier · Phase Viewer</title>
+    <meta name="description" content="Dossier framework with phase buttons loading exported SVG timelines." />
+    <link rel="stylesheet" href="index-phases.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+
+    <header class="site-header">
+      <div class="site-header__inner page-shell">
+        <p class="eyebrow">Formal Grievance Dossier</p>
+        <h1>Systemic Failures &amp; Duty of Care</h1>
+        <p class="lede">
+          A minimal web framework for presenting the dossier in an accessible,
+          evidentially linked form. The phase viewer below loads the exported timeline
+          artwork directly from the repository.
+        </p>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell stack-xl">
+      <section class="panel panel--hero">
+        <div>
+          <p class="eyebrow">Purpose</p>
+          <h2>Designed for investigation, not decoration</h2>
+          <p>
+            The final site should preserve chronology, keep the phase artwork faithful,
+            and allow the rest of the dossier structure to sit alongside it.
+          </p>
+        </div>
+        <ul class="bullet-grid" aria-label="Core objectives">
+          <li>Chronological honesty</li>
+          <li>Evidence-first navigation</li>
+          <li>Accessible reading order</li>
+          <li>Clear separation of report and appendix material</li>
+        </ul>
+      </section>
+
+      <section id="timeline" class="stack-l">
+        <div class="section-heading">
+          <p class="eyebrow">Timeline artwork</p>
+          <h2>Phase viewer</h2>
+          <p class="lede-small">Choose a phase to load its exported SVG directly into the timeline frame.</p>
+        </div>
+
+        <div class="phase-switcher" role="group" aria-label="Phase timeline selector">
+          <button class="phase-button is-active" type="button" data-phase-asset="Phases1.svg">Phase 1</button>
+          <button class="phase-button" type="button" data-phase-asset="Phases2.svg">Phase 2</button>
+          <button class="phase-button" type="button" data-phase-asset="Phases3.svg">Phase 3</button>
+        </div>
+
+        <div class="timeline-frame">
+          <div class="timeline-frame__header">
+            <h3 id="phaseTitle">Phase 1</h3>
+            <p id="phaseStatus">Loading Phases1.svg…</p>
+          </div>
+          <div class="timeline-frame__viewport">
+            <div class="timeline-frame__scroll">
+              <object
+                id="phaseAsset"
+                class="phase-asset"
+                type="image/svg+xml"
+                data="./Phases1.svg"
+                aria-label="Phase timeline artwork"
+              ></object>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="index-phases.js" defer></script>
+  </body>
+</html>
