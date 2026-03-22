@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dossier Timeline Image View</title>
+    <meta name="description" content="Timeline displayed directly from exported SVG or PNG assets." />
+    <link rel="stylesheet" href="timeline-image.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Formal Grievance Dossier</p>
+          <h1>Timeline image view</h1>
+          <p class="lede">This page displays the exported timeline assets directly from the repository root, preferring SVG where available.</p>
+        </div>
+      </header>
+
+      <section class="viewer-panel">
+        <div class="viewer-header">
+          <h2>Timeline</h2>
+          <p id="viewerStatus">Looking for exported assets…</p>
+        </div>
+        <div class="timeline-viewport">
+          <div id="timelineAssetTrack" class="timeline-asset-track"></div>
+        </div>
+      </section>
+    </div>
+
+    <script src="timeline-image.js" defer></script>
+  </body>
+</html>
