@@ -1,0 +1,344 @@
+:root {
+  --bg: #f5f1e8;
+  --surface: #fffdf8;
+  --surface-2: #f1ebdf;
+  --text: #1c1a17;
+  --muted: #5f594f;
+  --border: #d8cec0;
+  --shadow: 0 12px 30px rgba(28, 26, 23, 0.08);
+  --phase-1: #6d8561;
+  --phase-2: #826a9d;
+  --phase-3: #8a7a69;
+  --timeline-line: #c7d6e3;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.app-shell {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.title-bar {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  position: relative;
+  z-index: 2;
+}
+
+.title-bar__main {
+  min-height: 76px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.2rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h1, h2, h3, h4, p { margin: 0; }
+h1 {
+  font-size: clamp(1.3rem, 2vw, 2rem);
+  line-height: 1.05;
+}
+h2 {
+  font-size: 1rem;
+}
+h3 {
+  font-size: 0.98rem;
+}
+
+.timeline-toggle,
+.rail__header button,
+.menu-button {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 0.55rem 0.95rem;
+  cursor: pointer;
+}
+
+.timeline-panel {
+  border-top: 1px solid var(--border);
+  background: linear-gradient(180deg, #faf8f3 0%, #f2ede4 100%);
+  padding: 0.75rem 0 1rem;
+}
+
+.timeline-months,
+.timeline-track {
+  position: relative;
+  min-width: 1800px;
+}
+
+.timeline-months {
+  height: 34px;
+  margin: 0 1rem 0.5rem;
+}
+
+.month-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px solid var(--border);
+  padding-left: 0.45rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.timeline-scroll {
+  overflow-x: auto;
+  padding: 0 1rem;
+}
+
+.timeline-track {
+  height: 250px;
+}
+
+.timeline-track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 124px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--timeline-line);
+}
+
+.timeline-entry {
+  position: absolute;
+  width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 0.8rem;
+}
+
+.timeline-entry::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  width: 2px;
+  background: currentColor;
+  opacity: 0.35;
+}
+.timeline-entry[data-side="top"]::after {
+  top: 100%;
+  height: 32px;
+}
+.timeline-entry[data-side="bottom"]::after {
+  bottom: 100%;
+  height: 32px;
+}
+.timeline-entry[data-side="top"] { top: 20px; }
+.timeline-entry[data-side="bottom"] { top: 146px; }
+.timeline-entry[data-phase="1"] { color: var(--phase-1); }
+.timeline-entry[data-phase="2"] { color: var(--phase-2); }
+.timeline-entry[data-phase="3"] { color: var(--phase-3); }
+.timeline-entry button {
+  all: unset;
+  cursor: pointer;
+  display: block;
+}
+.timeline-entry button span {
+  display: block;
+}
+.timeline-entry .entry-date {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.timeline-entry .entry-body {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
+
+.workspace {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 260px 1fr 1fr 260px;
+}
+
+.rail,
+.content-frame {
+  min-height: 0;
+  background: rgba(255, 253, 248, 0.9);
+}
+
+.rail {
+  border-right: 1px solid var(--border);
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+.rail--appendix {
+  border-right: 0;
+  border-left: 1px solid var(--border);
+}
+
+.rail__header {
+  padding: 0.9rem 0.9rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rail__body,
+.content-frame__body {
+  overflow: auto;
+  min-height: 0;
+}
+
+.menu-tree {
+  list-style: none;
+  margin: 0;
+  padding: 0.6rem;
+}
+.menu-tree li + li {
+  margin-top: 0.35rem;
+}
+.menu-group {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.menu-group summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.7rem 0.8rem;
+  font-weight: 600;
+}
+.menu-group summary::-webkit-details-marker { display: none; }
+.menu-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0 0.5rem 0.5rem 1rem;
+}
+.menu-button {
+  width: 100%;
+  text-align: left;
+  border-radius: 12px;
+  background: transparent;
+}
+.menu-button.is-active {
+  background: var(--surface-2);
+  border-color: var(--muted);
+}
+.menu-label {
+  display: block;
+  font-weight: 600;
+}
+.menu-meta {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.18rem;
+}
+
+.content-frame {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+.content-frame + .content-frame {
+  border-left: 1px solid var(--border);
+}
+.content-frame__header {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.content-frame__header p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+}
+.content-frame__body {
+  padding: 1rem;
+}
+
+.content-card {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 1rem;
+}
+.content-card + .content-card {
+  margin-top: 0.85rem;
+}
+.content-card p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+.link-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.7rem 0 0;
+}
+.link-list li + li {
+  margin-top: 0.45rem;
+}
+.link-list button {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  cursor: pointer;
+}
+
+.rail.is-collapsed {
+  grid-template-rows: auto 0fr;
+}
+.rail.is-collapsed .rail__body {
+  overflow: hidden;
+}
+
+@media (max-width: 1100px) {
+  .workspace {
+    grid-template-columns: 220px 1fr 1fr 220px;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+  }
+  .workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(260px, 1fr) minmax(260px, 1fr);
+  }
+  .rail,
+  .rail--appendix,
+  .content-frame + .content-frame {
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+}
